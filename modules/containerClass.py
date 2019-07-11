@@ -9,28 +9,27 @@ class container:
 
     def __init__(self):
         #define the parameters
-        self.T_a0 = 300 #* u.kelvin #initial temperature of the gas inside the cylinder
-        self.m_a0 = 32.0 #0.003738313925588271 #* u.kilogram #initial mass of gas inside the cylinder
-        self.T_w0 = 305 #* u.kelvin #initial temperature of the cylinder walls
-        self.L = 1.8 #0.2602992 #* u.ft #length of the cylinder
-        self.D = 0.3 #0.067056 #* u.ft #diameter of the cylinder
+        self.T_a0 = 300 #initial temperature of the gas inside the cylinder
+        self.m_a0 = 32.0 #initial mass of gas inside the cylinder
+        self.T_w0 = 305 #initial temperature of the cylinder walls
+        self.L = 1.8 #length of the cylinder
+        self.D = 0.3 #diameter of the cylinder
         self.A_s = np.pi * self.D * ( self.L + self.D / 2.0 ) #surface area of the walls of the tank
-        self.D_e = 0.008 #0.002794 # * u.inch
+        self.D_e = 0.008 #diameter of the nozzle at the exit (assuming a converging nozzle here)
         self.A_e = np.pi * self.D_e **2 / 4.0 #exit area of the nozzle
-        #A_e = 0.0001 * u.meter ** 2 #cross sectional area of the nozzle
         self.A_c = np.pi* self.D ** 2 /4.0 #Area of the cylinder
         self.V = self.A_c * self.L # volume inside the tank 
-        self.R_a = 287 #* u.joule / u.kilogram / u.kelvin #gas constant for gas
-        self.c_w = 1250 #* u.joule / u.kilogram / u.kelvin #specific heat of the tank wall material
+        self.R_a = 287 #gas constant for gas
+        self.c_w = 1250 #specific heat of the tank wall material
         self.g_c = 1 #proportionality appearing in Newton's second law 
-        self.g = 9.81 #* u.meter/u.second**2
-        self.J = 1 ### !!!!!!4186 * u.joule #joule's constant
-        self.rho_polycarbonate = 1200 # * u.gram / u.centimeter **3 
-        self.wall_thickness = 0.005 #* u.millimeter
-        self.m_w = self.rho_polycarbonate * (np.pi * (self.D+self.wall_thickness/2.0)*self.L*self.wall_thickness + 2 * np.pi / 4.0 * self.D ** 2 * self.wall_thickness) #mass of cylinder
-        self.T_inf = 310 #* u.kelvin #ambient temperature
-        self.p_b = 6001325 #* u.pascal #back pressure (ambient pressure)
-        self.tspan = np.linspace(0,120,2000) #*u.second
+        self.g = 9.81 #gravitational acceleration
+        self.J = 1 #joule's constant
+        self.rho_container = 1200 #container wall's density 
+        self.wall_thickness = 0.005 #container wall's thickness
+        self.m_w = self.rho_container * (np.pi * (self.D+self.wall_thickness/2.0)*self.L*self.wall_thickness + 2 * np.pi / 4.0 * self.D ** 2 * self.wall_thickness) #mass of cylinder
+        self.T_inf = 310 #ambient temperature
+        self.p_b = 6001325 #back pressure (ambient pressure)
+        self.tspan = np.linspace(0,120,2000) #
 
 
 
@@ -230,5 +229,5 @@ class container:
             ve[i] = self.M_e(self.sol.y[0][i],self.sol.y[1][i],self.sol.y[2][i])
         plt.plot(self.sol.t, ve,linewidth = 3)
         plt.grid()
-        plt.legend()
+        #plt.legend()
         plt.show()
