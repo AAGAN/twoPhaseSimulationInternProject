@@ -194,6 +194,32 @@ class container:
         self.sol = solve_ivp(lambda t, y: self.f(t, y), 
                         [self.tspan[0], self.tspan[-1]], yinit, t_eval=self.tspan)
 
+    def t(self):
+        return self.sol.t
+
+    def ma(self):
+        return self.sol.y[0]
+
+    def Ta(self):
+        return self.sol.y[1]
+
+    def Tw(self):
+        return self.sol.y[2]
+
+    def Pt(self):
+        return self.p_a(self.sol.y[0],self.R_a,self.sol.y[1],self.V)
+
+    def Ve(self):
+        ve = np.zeros(len(self.sol.y[0]))
+        for i in range(len(self.sol.y[0])):
+            ve[i] = self.v_e(self.sol.y[0][i],self.sol.y[1][i],self.sol.y[2][i])
+        return ve
+
+    def Me(self):
+        Me = np.zeros(len(self.sol.y[0]))
+        for i in range(len(self.sol.y[0])):
+            Me[i] = self.M_e(self.sol.y[0][i],self.sol.y[1][i],self.sol.y[2][i])
+        return Me
 
     def plot(self):
         plt.rcParams['figure.figsize'] = (15, 10)
