@@ -7,15 +7,26 @@ from scipy.integrate import solve_ivp
 class container:
     """container class to calculate the properties of a pressurized container"""
 
-    def __init__(self):
+    def __init__(self,
+                agentInitialTemp, #initial temperature of the gas inside the cylinder
+                initialMass,
+                cylInitialTemp,
+                cylLength,
+                cylDiam,
+                nozzleDiam,
+                wallThickness,
+                ambientTemp,
+                backPressure,
+                endTime,
+                numTimeSteps):
         #define the parameters
-        self.T_a0 = 300 #initial temperature of the gas inside the cylinder
-        self.m_a0 = 32.0 #initial mass of gas inside the cylinder
-        self.T_w0 = 305 #initial temperature of the cylinder walls
-        self.L = 1.8 #length of the cylinder
-        self.D = 0.3 #diameter of the cylinder
+        self.T_a0 = agentInitialTemp 
+        self.m_a0 = initialMass #initial mass of gas inside the cylinder
+        self.T_w0 = cylInitialTemp #initial temperature of the cylinder walls
+        self.L = cylLength #length of the cylinder
+        self.D = cylDiam #diameter of the cylinder
         self.A_s = np.pi * self.D * ( self.L + self.D / 2.0 ) #surface area of the walls of the tank
-        self.D_e = 0.008 #diameter of the nozzle at the exit (assuming a converging nozzle here)
+        self.D_e = nozzleDiam #diameter of the nozzle at the exit (assuming a converging nozzle here)
         self.A_e = np.pi * self.D_e **2 / 4.0 #exit area of the nozzle
         self.A_c = np.pi* self.D ** 2 /4.0 #Area of the cylinder
         self.V = self.A_c * self.L # volume inside the tank 
@@ -25,11 +36,11 @@ class container:
         self.g = 9.81 #gravitational acceleration
         self.J = 1 #joule's constant
         self.rho_container = 1200 #container wall's density 
-        self.wall_thickness = 0.005 #container wall's thickness
+        self.wall_thickness = wallThickness #container wall's thickness
         self.m_w = self.rho_container * (np.pi * (self.D+self.wall_thickness/2.0)*self.L*self.wall_thickness + 2 * np.pi / 4.0 * self.D ** 2 * self.wall_thickness) #mass of cylinder
-        self.T_inf = 310 #ambient temperature
-        self.p_b = 6001325 #back pressure (ambient pressure)
-        self.tspan = np.linspace(0,120,2000) #
+        self.T_inf = ambientTemp #ambient temperature
+        self.p_b = backPressure #back pressure (ambient pressure)
+        self.tspan = np.linspace(0,endTime,numTimeSteps) #
 
 
 
