@@ -32,3 +32,5 @@
 *.app
 modules/__pycache__/containerClass.cpython-36.pyc
 modules/.ipynb_checkpoints/nonSteadyNozzleFlow-withClasses-checkpoint.ipynb
+modules/__pycache__/pipeClass.cpython-36.pyc
+modules/.ipynb_checkpoints/Untitled-checkpoint.ipynb
