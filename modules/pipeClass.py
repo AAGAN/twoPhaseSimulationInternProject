@@ -26,6 +26,10 @@ class pipe:
         #self.findT02()
         self.T02_T01 = T02_T01
 
+    def printResults(self):
+        for i in range(len(self._M2)):
+            print("{:.4f} , {:.4f} , {:.4f} , {:.4f} , {:.4f} , {:.4f}".format(self._M2[i],self._T0_T01[i],self._4fx_D[i],self._T_T1[i],self._P_P1[i],self._P0_P01[i]))
+
     def findT02(self):
         OrgM1 = self.M1
         M2 = self.M1 + self.h
@@ -39,7 +43,7 @@ class pipe:
                 T = Prod * (1.0+CommG*OrgM1*OrgM1)/(1.0+CommG*M2*M2)
                 P = OrgM1/M2*T**0.5
                 P0 = Prod**0.5*OrgM1/M2*((1.0+CommG*M2*M2)/(1.0+CommG*OrgM1*OrgM1))**((self.gamma+1.0)/(2.0*(self.gamma-1.0)))
-                print("{:.4f} , {:.4f} , {:.4f} , {:.4f} , {:.4f} , {:.4f}".format(M2,Prod,X,T,P,P0))
+                #print("{:.4f} , {:.4f} , {:.4f} , {:.4f} , {:.4f} , {:.4f}".format(M2,Prod,X,T,P,P0))
                 self._M2.append(M2)
                 self._T0_T01.append(Prod)
                 self._4fx_D.append(X)
@@ -88,14 +92,14 @@ class pipe:
             Soln = self.Solve(NewM1,NewM2,Tw01,gamma,Eps)
             Prod = Prod * Soln
             if (abs(Prod-T02_T01) < Eps):
-                print(NewM2)
+                #print(NewM2)
                 break
             else:
                 if(Prod-T02_T01 > 0.0):
                     NewM2 = NewM2 - Step
                     Step = Step / 10.0
                     if Step<Eps:
-                        print(NewM2)
+                        #print(NewM2)
                         break
                     else:
                         NewM2 = NewM2 + Step
@@ -110,12 +114,12 @@ class pipe:
         self._T_T1.append(T)
         self._P_P1.append(P)
         self._P0_P01.append(P0)
-        print("M2 = ", self._M2[-1])
-        print("T0/T01 = ", self._T0_T01[-1])
-        print("4fx_D = ", self._4fx_D[-1])
-        print("T_T1 = ", self._T_T1[-1])
-        print("P_P1 = ", self._P_P1[-1])
-        print("P0_P01 = ", self._P0_P01[-1])
+        print("M2 = {:.4f}".format(self._M2[-1]))
+        print("T0/T01 = {:.4f}".format(self._T0_T01[-1]))
+        print("4fx_D = {:.4f}".format(self._4fx_D[-1]))
+        print("T_T1 = {:.4f}".format(self._T_T1[-1]))
+        print("P_P1 = {:.4f}".format(self._P_P1[-1]))
+        print("P0_P01 = {:.4f}".format(self._P0_P01[-1]))
 
 
     def M2(self):
