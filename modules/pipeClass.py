@@ -1,17 +1,18 @@
-#import pint
+
 import numpy as np
 import matplotlib.pyplot as plt
-#u = pint.UnitRegistry()
-#from scipy.integrate import solve_ivp
 
 class pipe:
     def __init__(self,
                 pipeLength,
                 initialMach,
                 wallTemp,
-                gamma):
+                gamma,
+                T02_T01 = 1.05):
         self.L = pipeLength
         self.M1 = initialMach
+        self.OrgM1 = initialMach
+        self.finalMach = initialMach
         self.gamma = gamma
         self.h = 0.01
         self.Tw01 = wallTemp
@@ -22,21 +23,22 @@ class pipe:
         self._T_T1 = [1]
         self._P_P1 = [1]
         self._P0_P01 = [1]
-        self.findT02()
+        #self.findT02()
+        self.T02_T01 = T02_T01
 
     def findT02(self):
-        OrM1 = self.M1
+        OrgM1 = self.M1
         M2 = self.M1 + self.h
         Prod = 1.0
         CommG = (self.gamma - 1.0)/2.0
-        while (M2<=1):
+        while (round(M2,5)<=1):
             Soln = self.Solve(self.M1,M2,self.Tw01,self.gamma,self.Eps)
             if Soln>1.0:
                 Prod = Prod * Soln
                 X = 2.0 * (np.log(self.Tw01-1.0)-np.log(self.Tw01-Prod))
-                T = Prod * (1.0+CommG*OrM1*OrM1)/(1.0+CommG*M2*M2)
-                P = OrM1/M2*T**0.5
-                P0 = Prod**0.5*OrM1/M2*((1.0+CommG*M2*M2)/(1.0+CommG*OrM1*OrM1))**((self.gamma+1.0)/(2.0*(self.gamma-1.0)))
+                T = Prod * (1.0+CommG*OrgM1*OrgM1)/(1.0+CommG*M2*M2)
+                P = OrgM1/M2*T**0.5
+                P0 = Prod**0.5*OrgM1/M2*((1.0+CommG*M2*M2)/(1.0+CommG*OrgM1*OrgM1))**((self.gamma+1.0)/(2.0*(self.gamma-1.0)))
                 print("{:.4f} , {:.4f} , {:.4f} , {:.4f} , {:.4f} , {:.4f}".format(M2,Prod,X,T,P,P0))
                 self._M2.append(M2)
                 self._T0_T01.append(Prod)
@@ -49,6 +51,72 @@ class pipe:
                 break
             self.M1 = M2
             M2 = M2 + self.h
+
+    def findM2(self):
+        M2 = self.M1 + self.h
+        Prod = 1.0
+        # if(M2 > 1.0):
+        #     print("There is no solution for the given input, \n The solution does not converge after M2 = {:.4f}".format(M2))
+        # else:
+        while True:
+            if (M2 > 1.0):
+                print("There is no solution for the given input, \n The solution does not converge after M2 = {:.4f}".format(M2))
+                break
+            else:
+                Soln = self.Solve(self.M1,M2,self.Tw01,self.gamma,self.Eps)
+                if Soln>1.0:
+                    Prod = Prod * Soln
+                    if (Prod-self.T02_T01 > 0.0):
+                        Prod = Prod / Soln
+                        self.Improv(self.M1,self.T02_T01,self.Tw01,self.gamma,self.Eps,self.h,Prod)
+                        break
+                    else:
+                        self.M1 = M2
+                        M2 = M2 + self.h
+                else:
+                    print("There is no solution for the given input, \n The solution does not converge after M2 = {:.4f}".format(M2))
+                    break
+        #print(self.finalMach)
+        return self._M2[-1]
+            
+
+    def Improv(self,M1,T02_T01,Tw01,gamma,Eps,h,Prod):
+        NewM1 = M1
+        Step = h/10.0
+        NewM2 = M1 + Step
+        while(Step > Eps):
+            Soln = self.Solve(NewM1,NewM2,Tw01,gamma,Eps)
+            Prod = Prod * Soln
+            if (abs(Prod-T02_T01) < Eps):
+                print(NewM2)
+                break
+            else:
+                if(Prod-T02_T01 > 0.0):
+                    NewM2 = NewM2 - Step
+                    Step = Step / 10.0
+                    if Step<Eps:
+                        print(NewM2)
+                        break
+                    else:
+                        NewM2 = NewM2 + Step
+        CommG = (self.gamma - 1.0)/2.0
+        X = 2.0 * (np.log(self.Tw01-1.0)-np.log(self.Tw01-Prod))
+        T = Prod * (1.0+CommG*self.OrgM1*self.OrgM1)/(1.0+CommG*NewM2*NewM2)
+        P = self.OrgM1/NewM2*T**0.5
+        P0 = Prod**0.5*self.OrgM1/NewM2*((1.0+CommG*NewM2*NewM2)/(1.0+CommG*self.OrgM1*self.OrgM1))**((self.gamma+1.0)/(2.0*(self.gamma-1.0)))
+        self._M2.append(NewM2)
+        self._T0_T01.append(Prod)
+        self._4fx_D.append(X)
+        self._T_T1.append(T)
+        self._P_P1.append(P)
+        self._P0_P01.append(P0)
+        print("M2 = ", self._M2[-1])
+        print("T0/T01 = ", self._T0_T01[-1])
+        print("4fx_D = ", self._4fx_D[-1])
+        print("T_T1 = ", self._T_T1[-1])
+        print("P_P1 = ", self._P_P1[-1])
+        print("P0_P01 = ", self._P0_P01[-1])
+
 
     def M2(self):
         return self._M2
@@ -93,8 +161,6 @@ class pipe:
             T21 = Soln
         return Soln
         
-
-
     def FuncT0(self, Mbarsq, Gamma):
         FuncT0 = (1.0+Gamma*Mbarsq)*(1.0+(Gamma-1.0)/2.0*Mbarsq)/(1.0-Mbarsq)
         return FuncT0
@@ -106,6 +172,7 @@ class pipe:
 # for i in range(10,100, 5):
 #     print("Tw/T0 = ", i/10.0)
 #     a = pipe(pipeLength=10,initialMach= 0.5,wallTemp = i/10.0,gamma = 1.4)
+#      a.findT02()
 #     plt.plot(a.fx4_D(),a.M2(),label='Tw/T01= {:.1f}'.format(i/10.0))
 # plt.ylabel('M2')
 # plt.xlabel("$\\frac{4fx}{D}$")
@@ -113,12 +180,22 @@ class pipe:
 # plt.grid()
 # plt.show()
 
-for i in range(10,71,10):
-    print("Tw/T0 = ", i/10.0)
-    a = pipe(pipeLength=10,initialMach= 0.2,wallTemp = i/10.0,gamma = 1.4)
-    plt.plot(a.fx4_D(),a.T_T1(),label='Tw/T01= {:.1f}'.format(i/10.0))
-plt.ylabel('Tw/T01')
-plt.xlabel("$\\frac{4fx}{D}$")
-plt.legend()
-plt.grid()
-plt.show()
+# for i in range(10,71,10):
+#     print("Tw/T0 = ", i/10.0)
+#     a = pipe(pipeLength=10,initialMach= 0.2,wallTemp = i/10.0,gamma = 1.4)
+#     a.findT02()
+#     plt.plot(a.fx4_D(),a.T_T1(),label='Tw/T01= {:.1f}'.format(i/10.0))
+# plt.ylabel('Tw/T01')
+# plt.xlabel("$\\frac{4fx}{D}$")
+# plt.legend()
+# plt.grid()
+# plt.show()
+
+# for i in range(30,41,10):
+#     print("Tw/T0 = ", i/10.0)
+#     a.findT02()
+#     a = pipe(pipeLength=10,initialMach= 0.4,wallTemp = i/10.0,gamma = 1.4)
+#     
+
+# a = pipe(pipeLength=10,initialMach= 0.4,wallTemp = 4,gamma = 1.4, T02_T01 = 1.575)
+# a.findM2()
