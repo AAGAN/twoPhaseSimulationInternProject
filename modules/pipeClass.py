@@ -113,9 +113,9 @@ class pipe:
 # plt.grid()
 # plt.show()
 
-for i in range(30,31):
+for i in range(10,71,10):
     print("Tw/T0 = ", i/10.0)
-    a = pipe(pipeLength=10,initialMach= 0.4,wallTemp = i/10.0,gamma = 1.4)
+    a = pipe(pipeLength=10,initialMach= 0.2,wallTemp = i/10.0,gamma = 1.4)
     plt.plot(a.fx4_D(),a.T_T1(),label='Tw/T01= {:.1f}'.format(i/10.0))
 plt.ylabel('Tw/T01')
 plt.xlabel("$\\frac{4fx}{D}$")
