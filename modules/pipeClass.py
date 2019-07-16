@@ -1,6 +1,7 @@
 
 import numpy as np
 import matplotlib.pyplot as plt
+from scipy.optimize import fsolve
 
 class pipe:
     def __init__(self,
@@ -82,7 +83,16 @@ class pipe:
                     break
         #print(self.finalMach)
         return self._M2[-1]
-            
+    
+    def constantTemp(self, M2):
+        Mbarsq = ((self.M1 + M2) / 2.0)**2.0
+        val = M2**2.0 - self.M1**2.0 - 2.0*(self.T02_T01 - 1.0) * (self.FuncT0(Mbarsq, self.gamma)/(self.T02_T01+1.0))+2.0*self.FuncFf(Mbarsq,self.gamma)/(2.0*self.Tw01-self.T02_T01-1.0)
+        return val
+
+    def findM2fsolve(self):
+        root = fsolve(self.constantTemp,0.4)
+        print(root)#"rootsq = {:.6f} , root = {:.6f}".format(rootsq,root))
+        #return root
 
     def Improv(self,M1,T02_T01,Tw01,gamma,Eps,h,Prod):
         NewM1 = M1
@@ -150,6 +160,7 @@ class pipe:
         Iter = 0
         while (True):
             Iter = Iter + 1
+            #define a relation between Tw01 and T21 for constant heat flux Tw01 = f(T21) or more generally Twn_T0n = f(T21,Tw1_T01)
             Soln = -2.0 * Ff * ( np.log(Tw01-1.0) - np.log(Tw01 - T21))
             Soln = (M2**2.0 - M1**2.0) / Mbarsq + Soln
             Soln = 1.0 + 1.0 / Ft0 * Soln
@@ -201,5 +212,8 @@ class pipe:
 #     a = pipe(pipeLength=10,initialMach= 0.4,wallTemp = i/10.0,gamma = 1.4)
 #     
 
-# a = pipe(pipeLength=10,initialMach= 0.4,wallTemp = 4,gamma = 1.4, T02_T01 = 1.575)
-# a.findM2()
+a = pipe(pipeLength=10,initialMach= 0.4,wallTemp = 4,gamma = 1.4, T02_T01 = 1.00575)
+a.findM2()
+
+a = pipe(pipeLength=10,initialMach= 0.4,wallTemp = 4,gamma = 1.4, T02_T01 = 1.00575)
+a.findM2fsolve()
