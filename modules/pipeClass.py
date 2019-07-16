@@ -91,17 +91,17 @@ class pipe:
     #     val = M2**2.0 - self.M1**2.0 - 2.0*(self.T02_T01 - 1.0) * (self.FuncT0(Mbarsq, self.gamma)/(self.T02_T01+1.0))+2.0*self.FuncFf(Mbarsq,self.gamma)/(2.0*self.Tw01-self.T02_T01-1.0)
     #     return val
 
-    def constantTemp(self):
-        T02_T01 = -np.exp(np.log(self.Tw01 - 1.0) - 2.0 * self.f * self.L / self.D ) + self.Tw01
-        T
+    # def constantTemp(self):
+    #     T02_T01 = -np.exp(np.log(self.Tw01 - 1.0) - 2.0 * self.f * self.L / self.D ) + self.Tw01
+    #     T
 
 
 
 
-    def findM2fsolve(self):
-        root = fsolve(self.constantTemp,0.4)
-        print(root)#"rootsq = {:.6f} , root = {:.6f}".format(rootsq,root))
-        #return root
+    # def findM2fsolve(self):
+    #     root = fsolve(self.constantTemp,0.4)
+    #     print(root)#"rootsq = {:.6f} , root = {:.6f}".format(rootsq,root))
+    #     #return root
 
     def Improv(self,M1,T02_T01,Tw01,gamma,Eps,h,Prod):
         NewM1 = M1
