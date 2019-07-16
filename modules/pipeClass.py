@@ -26,6 +26,8 @@ class pipe:
         self._P0_P01 = [1]
         #self.findT02()
         self.T02_T01 = T02_T01
+        self.T01 = 300
+
 
     def printResults(self):
         for i in range(len(self._M2)):
@@ -84,10 +86,17 @@ class pipe:
         #print(self.finalMach)
         return self._M2[-1]
     
-    def constantTemp(self, M2):
-        Mbarsq = ((self.M1 + M2) / 2.0)**2.0
-        val = M2**2.0 - self.M1**2.0 - 2.0*(self.T02_T01 - 1.0) * (self.FuncT0(Mbarsq, self.gamma)/(self.T02_T01+1.0))+2.0*self.FuncFf(Mbarsq,self.gamma)/(2.0*self.Tw01-self.T02_T01-1.0)
-        return val
+    # def constantTemp(self, M2):
+    #     Mbarsq = ((self.M1 + M2) / 2.0)**2.0
+    #     val = M2**2.0 - self.M1**2.0 - 2.0*(self.T02_T01 - 1.0) * (self.FuncT0(Mbarsq, self.gamma)/(self.T02_T01+1.0))+2.0*self.FuncFf(Mbarsq,self.gamma)/(2.0*self.Tw01-self.T02_T01-1.0)
+    #     return val
+
+    def constantTemp(self):
+        T02_T01 = -np.exp(np.log(self.Tw01 - 1.0) - 2.0 * self.f * self.L / self.D ) + self.Tw01
+        T
+
+
+
 
     def findM2fsolve(self):
         root = fsolve(self.constantTemp,0.4)
@@ -212,8 +221,8 @@ class pipe:
 #     a = pipe(pipeLength=10,initialMach= 0.4,wallTemp = i/10.0,gamma = 1.4)
 #     
 
-a = pipe(pipeLength=10,initialMach= 0.4,wallTemp = 4,gamma = 1.4, T02_T01 = 1.00575)
-a.findM2()
+# a = pipe(pipeLength=10,initialMach= 0.4,wallTemp = 4,gamma = 1.4, T02_T01 = 1.00575)
+# a.findM2()
 
-a = pipe(pipeLength=10,initialMach= 0.4,wallTemp = 4,gamma = 1.4, T02_T01 = 1.00575)
-a.findM2fsolve()
+# a = pipe(pipeLength=10,initialMach= 0.4,wallTemp = 4,gamma = 1.4, T02_T01 = 1.00575)
+# a.findM2fsolve()
