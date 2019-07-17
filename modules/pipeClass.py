@@ -95,9 +95,6 @@ class pipe:
     #     T02_T01 = -np.exp(np.log(self.Tw01 - 1.0) - 2.0 * self.f * self.L / self.D ) + self.Tw01
     #     T
 
-
-
-
     # def findM2fsolve(self):
     #     root = fsolve(self.constantTemp,0.4)
     #     print(root)#"rootsq = {:.6f} , root = {:.6f}".format(rootsq,root))
