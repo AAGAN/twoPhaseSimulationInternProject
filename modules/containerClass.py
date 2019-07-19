@@ -192,7 +192,7 @@ class container:
         yinit = [self.m_a0,self.T_a0,self.T_w0]
         
         self.sol = solve_ivp(lambda t, y: self.f(t, y), 
-                        [self.tspan[0], self.tspan[-1]], yinit, t_eval=self.tspan)
+                        [self.tspan[0], self.tspan[-1]], yinit,method = 'Radau', t_eval=self.tspan, jac = None)
 
     def t(self):
         return self.sol.t
