@@ -28,7 +28,6 @@ class pipe:
         self.T02_T01 = T02_T01
         self.T01 = 300
 
-
     def printResults(self):
         for i in range(len(self._M2)):
             print("{:.4f} , {:.4f} , {:.4f} , {:.4f} , {:.4f} , {:.4f}".format(self._M2[i],self._T0_T01[i],self._4fx_D[i],self._T_T1[i],self._P_P1[i],self._P0_P01[i]))
@@ -136,7 +135,6 @@ class pipe:
         print("T_T1 = {:.4f}".format(self._T_T1[-1]))
         print("P_P1 = {:.4f}".format(self._P_P1[-1]))
         print("P0_P01 = {:.4f}".format(self._P0_P01[-1]))
-
 
     def M2(self):
         return self._M2
