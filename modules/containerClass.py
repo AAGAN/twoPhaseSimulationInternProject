@@ -1,7 +1,7 @@
-import pint
+#import pint
 import numpy as np
 import matplotlib.pyplot as plt
-u = pint.UnitRegistry()
+#u = pint.UnitRegistry()
 from scipy.integrate import solve_ivp
 
 class container:
@@ -18,7 +18,7 @@ class container:
                 ambientTemp,
                 backPressure,
                 endTime,
-                numTimeSteps):
+                numTimeSteps = 1000):
         #define the parameters
         self.T_a0 = agentInitialTemp 
         self.m_a0 = initialMass #initial mass of gas inside the cylinder
@@ -40,7 +40,8 @@ class container:
         self.m_w = self.rho_container * (np.pi * (self.D+self.wall_thickness/2.0)*self.L*self.wall_thickness + 2 * np.pi / 4.0 * self.D ** 2 * self.wall_thickness) #mass of cylinder
         self.T_inf = ambientTemp #ambient temperature
         self.p_b = backPressure #back pressure (ambient pressure)
-        self.tspan = np.linspace(0,endTime,numTimeSteps) #
+        self._endTime = endTime
+        #self.tspan = np.linspace(0,endTime,numTimeSteps) #
 
 
 
@@ -190,9 +191,10 @@ class container:
 
     def solve(self):
         yinit = [self.m_a0,self.T_a0,self.T_w0]
-        
         self.sol = solve_ivp(lambda t, y: self.f(t, y), 
-                        [self.tspan[0], self.tspan[-1]], yinit,method = 'Radau', t_eval=self.tspan, jac = None)
+                         [0, self._endTime], yinit,method = 'Radau', jac = None)
+        # self.sol = solve_ivp(lambda t, y: self.f(t, y), 
+        #                 [self.tspan[0], self.tspan[-1]], yinit,method = 'Radau', jac = None)
 
     def t(self):
         return self.sol.t

@@ -1,25 +1,12 @@
 from containerClass import container
+import numpy as np
+from scipy.integrate import solve_ivp
 import igraph
+from calcTw import calcTw
+from calcQ import calcQ
+from containerClass import container
+from systemDefinitions import system,nodes,nodes1,pipeSections,pipeSections1
 
-system = {"agent":"inergen", "discharge_time":120}
-cylinder = {"valve_type":"iflow", "size" : 140, "pressure": 3e7}
-nodes = [
-    [1,"cyl", 0,0,0],#type, x,y,z
-    [2,"cyl_valve", 0,0,1],
-    [3,"elbow", 0,0,5],
-    [4,"tee", 10,0,5],
-    [301,"nozzle", 10, 0 , 4],
-    [302,"nozzle", 15, 0 , 4]
-]
-
-pipeSections = [
-    [ 1 , 2 ,  1 ,   1 ,  1 , 80 ,0,0,0,0,0,0,0],#startNode,endNode,len,diam,height,Sch,Elb,Stee,Ttee,Cpl,Dtrp,Ptap,SV
-    [ 2 , 3 ,  4 ,   1 ,  4 , 80 ,0,0,0,0,0,0,0],
-    [ 3 , 4 , 10 ,   1 ,  0 , 80 ,1,0,0,0,0,0,0],
-    [ 4 , 301 ,  1 , 0.5 , -1 , 80 ,0,1,0,0,0,0,0],
-    [ 4 , 302 ,  5 , 0.5 , -1 , 80 ,1,0,1,0,1,0,0]
-]
-        
 class pipeNetwork:
     def __init__(self):
         self.t = igraph.Graph(directed = True)
@@ -56,7 +43,7 @@ class pipeNetwork:
 
     def addSystem(self, _system):
         self.t["agent"] = _system["agent"]
-        self.t["discharge_time"] = _system["discarge_time"]
+        self.t["discharge_time"] = _system["discharge_time"]
 
     def addNode(self, _id, _type, _x, _y, _z, _M, _P, _T, _P0, _T0, _rho):
         self.t.add_vertex(_id, type=_type, x =_x, y=_y, z=_z, M=_M, P=_P, T=_T, P0=_P0, T0=_T0, rho=_rho)
@@ -81,12 +68,17 @@ class pipeNetwork:
     def plot(self):
         layout = self.t.layout("kk")
         self.t.vs["label"]=self.t.vs["name"]
+        self.t.es["label"]=self.t.es["L"]
         igraph.plot(self.t, layout = layout)
+
+    def calcNetwork(self):
+        pass
 
 net = pipeNetwork()
 #net.topoSummary()
-net.addAllNodes(nodes)
+net.addSystem(system)
+net.addAllNodes(nodes1)
 #net.topoSummary()
-net.addAllPipes(pipeSections)
+net.addAllPipes(pipeSections1)
 net.topoSummary()
 net.plot()
