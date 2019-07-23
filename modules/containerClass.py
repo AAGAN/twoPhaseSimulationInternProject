@@ -1,7 +1,5 @@
-#import pint
 import numpy as np
 import matplotlib.pyplot as plt
-#u = pint.UnitRegistry()
 from scipy.integrate import solve_ivp
 
 class container:
@@ -43,8 +41,6 @@ class container:
         self._endTime = endTime
         #self.tspan = np.linspace(0,endTime,numTimeSteps) #
 
-
-
     def mu(self, T):#=============================================function of film temperature
         return 1.8e-3 #* u.kilogram / (u.meter * u.second)
 
@@ -67,7 +63,6 @@ class container:
     def k(self, T):
         return self.c_p(T)/self.c_v(T)
         
-
     def hbar_i(self, T_w, T, ma):
         _beta = self.beta(T)
         _c_p = self.c_p((T+T_w)/2.0)
@@ -88,7 +83,6 @@ class container:
         h = (C * (Gr * Pr) ** m)*_k_t/self.L
         return h
 
-
     def hbar_o(self, T_w):
         _beta = self.beta(self.T_inf)
         _c_p = self.c_p((self.T_inf+T_w)/2.0)
@@ -108,11 +102,6 @@ class container:
         
         h = (C * (Gr * Pr) ** m)*_k_t_inf/self.L
         return h
-
-    #print((hbar_i(300,290,1)))
-    #print((hbar_o(300)))
-
-    #define the linearized functions
 
     def mdot_a(self, m_a, T_a, T_w):
         _k = self.k(T_a)
@@ -181,8 +170,6 @@ class container:
         dTw_dt = firstTerm+secondTerm
         #return dTw_dt
         return dTw_dt
-
-
 
     #RK4 implementation
     def f(self,t, y):

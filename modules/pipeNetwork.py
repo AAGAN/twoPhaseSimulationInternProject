@@ -75,10 +75,8 @@ class pipeNetwork:
         pass
 
 net = pipeNetwork()
-#net.topoSummary()
 net.addSystem(system)
 net.addAllNodes(nodes1)
-#net.topoSummary()
 net.addAllPipes(pipeSections1)
 net.topoSummary()
 net.plot()
