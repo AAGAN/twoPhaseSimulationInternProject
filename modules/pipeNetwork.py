@@ -5,11 +5,13 @@ import igraph
 from calcTw import calcTw
 from calcQ import calcQ
 from containerClass import container
-from systemDefinitions import system,nodes,nodes1,pipeSections,pipeSections1
+#from systemDefinitions import system,nodes,nodes1,pipeSections,pipeSections1
+from systemDefinitions import system,pipeSections,pipeSections1
 
 class pipeNetwork:
     def __init__(self):
         self.t = igraph.Graph(directed = True)
+        #self.t = igraph.GraphBase(directed = True)
 
         #attributes of the pipe network
         self.t["agent"] = ""
@@ -45,7 +47,7 @@ class pipeNetwork:
         self.t["agent"] = _system["agent"]
         self.t["discharge_time"] = _system["discharge_time"]
 
-    def addNode(self, _id, _type, _x, _y, _z, _M, _P, _T, _P0, _T0, _rho):
+    def addNode(self, _id, _type=None, _x=None, _y=None, _z=None, _M=None, _P=None, _T=None, _P0=None, _T0=None, _rho=None):
         self.t.add_vertex(_id, type=_type, x =_x, y=_y, z=_z, M=_M, P=_P, T=_T, P0=_P0, T0=_T0, rho=_rho)
 
     def addPipe(self,_start, _end, _L, _D, _H, _Sch, _Elb, _Stee, _Ttee, _Cpl, _Dtrp, _Ptap, _SV, _f):
@@ -53,17 +55,30 @@ class pipeNetwork:
         targetIndex = self.t.vs.select(name_eq = _end)[0].index #same as above
         self.t.add_edge(sourceIndex, targetIndex, L=_L, D=_D, H=_H, Sch=_Sch, Elb=_Elb, Stee=_Stee, Ttee= _Ttee, Cpl=_Cpl, Dtrp=_Dtrp, Ptap=_Ptap, SV=_SV, f=_f)
 
-    def addAllNodes(self, _nodes):
+    # def addAllNodes(self, _nodes):
+    #     for i in _nodes:
+    #         self.addNode(i[0],i[1],i[2],i[3],i[4],0,0,0,0,0,0)
+    def addAllNodes(self, _pipes):
+        _nodes=[]
+        for i in _pipes:
+            if i[0] not in _nodes:
+                _nodes.append(i[0])
+            if i[1] not in _nodes:
+                _nodes.append(i[1])
         for i in _nodes:
-            self.addNode(i[0],i[1],i[2],i[3],i[4],0,0,0,0,0,0)
+            self.addNode(i)
 
     def addAllPipes(self, _pipes):
+        self.addAllNodes(_pipes)
         for i in _pipes:
             self.addPipe(i[0],i[1],i[2],i[3],i[4],i[5],i[6],i[7],i[8],i[9],i[10],i[11],i[12],0)
 
     def topoSummary(self):
         igraph.summary(self.t)
         print(self.t.get_edgelist())
+        print(self.t.farthest_points(directed=True))
+        for i in self.t.vs:
+            print(i['name'],i.index,i.degree(),i.degree(mode='OUT'),i.degree(mode='IN'))
 
     def plot(self):
         layout = self.t.layout("kk")
@@ -76,7 +91,7 @@ class pipeNetwork:
 
 net = pipeNetwork()
 net.addSystem(system)
-net.addAllNodes(nodes1)
+#net.addAllNodes(nodes1)
 net.addAllPipes(pipeSections1)
 net.topoSummary()
 net.plot()

@@ -7,6 +7,6 @@ m = mixture.Mixture(['nitrogen','argon','carbon dioxide'], zs=[.52, .4, .08], T 
 
 print("Cp = {:.4f}, Cv = {:.4f}, mu = {:.8f}, MW = {:.4f}, SG = {:.4f}, Cp/Cv = {:.4f}, Z = {:.4f}".format(m.Cp, m.Cvg, m.mu, m.MW, m.SG, m.isentropic_exponent, m.Z))
 
-m = mixture.Mixture(['nitrogen','argon','carbon dioxide'], zs=[.52, .4, .08], T = 100, P=1e5)
+m = mixture.Mixture(['nitrogen','argon','carbon dioxide'], zs=[.52, .4, .08], T = 250, P=1e5)
 
 print("Cp = {:.4f}, Cv = {:.4f}, mu = {:.8f}, MW = {:.4f}, SG = {:.4f}, Cp/Cv = {:.4f}, Z = {:.4f}".format(m.Cp, m.Cvg, m.mu, m.MW, m.SG, m.isentropic_exponent, m.Z))
