@@ -38,6 +38,8 @@ class container:
         self.m_w = self.rho_container * (np.pi * (self.D+self.wall_thickness/2.0)*self.L*self.wall_thickness + 2 * np.pi / 4.0 * self.D ** 2 * self.wall_thickness) #mass of cylinder
         self.T_inf = ambientTemp #ambient temperature
         self.p_b = backPressure #back pressure (ambient pressure)
+        self.Pb = []
+        self.tt = []
         self._endTime = endTime
         #self.tspan = np.linspace(0,endTime,numTimeSteps) #
 
@@ -173,6 +175,11 @@ class container:
 
     #RK4 implementation
     def f(self,t, y):
+        self.p_b = (-9.74505954e-06* t**4 + 1.15123832e-03 * t**3 + 9.92757293e-02 * t**2 - 1.84554866e+01 * t + 6.70539113e+02)*6895
+        if self.p_b<=0.0:
+            self.p_b = 0.01
+        self.Pb.append(self.p_b)
+        self.tt.append(t)
         dydt = [self.mdot_a(y[0], y[1], y[2]), self.dTa_dt(y[0], y[1], y[2]) , self.dTw_dt(y[0], y[1], y[2])]
         return dydt
 
@@ -188,6 +195,12 @@ class container:
 
     def ma(self):
         return self.sol.y[0]
+
+    def t_t(self):#returns the times when the solver called the f(t,y) function
+        return self.tt
+
+    def P_b(self):#returns the back pressure during the calculation, can be plotted vs t_t
+        return self.Pb
 
     def Ta(self):
         return self.sol.y[1]
