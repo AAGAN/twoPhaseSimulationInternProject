@@ -93,11 +93,12 @@ class pipeNetwork:
 
     def plot(self):
         layout = self.t.layout("kk")
-        self.t.vs["label"]=self.t.vs["D"]#["name"]
+        self.t.vs["label"]=self.t.vs["name"]#["D"]
         self.t.es["label"]=self.t.es["L"]
         igraph.plot(self.t, layout = layout)
 
     def calcNetwork(self):#calculates the network at the current instace of time
+
         #find the end of manifold node
         #create two networks net1=cylinder bank until the end of manifold node net2=pipe network from the end of manifold node until the nozzles
         #find all the nozzles in net2
@@ -107,11 +108,12 @@ class pipeNetwork:
         #move upstream until all the tees are calculated and have known properties
         #start from the most remote cylinder and calculate the pressure downstream until all the properties on tees are known
         #compare the pressure of the manifold node from net1 and net2
-        #Iterate until the pressure of the manifold node is equal 
+        #Iterate until the pressure of the manifold node is equal
+        pass 
 
 
-net = pipeNetwork()
-net.addSystem(system)
-net.addAllPipes(pipeSections3, orificeDiam3)
-net.topoSummary()
-net.plot()
+# net = pipeNetwork()
+# net.addSystem(system)
+# net.addAllPipes(pipeSections3, orificeDiam3)
+# net.topoSummary()
+# net.plot()
