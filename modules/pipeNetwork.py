@@ -6,7 +6,7 @@ from calcTw import calcTw
 from calcQ import calcQ
 from containerClass import container
 #from systemDefinitions import system,nodes,nodes1,pipeSections,pipeSections1
-from systemDefinitions import system,pipeSections,pipeSections1, pipeSections3,orificeDiam3
+from systemDefinitions import system,pipeSections,pipeSections1, pipeSections3,orificeDiam3,pipeSections4
 
 class pipeNetwork:
     def __init__(self):
@@ -33,6 +33,7 @@ class pipeNetwork:
         self.t.vs['P']   = 0  #pressure
         self.t.vs['rho'] = 0 #density
         self.t.vs['D']   = 0 #diameter
+        self.t.vs['MFR'] = 0 #mass flow rate
         
         #attributes of the edges
         self.t.es['L'] = 0 #length
@@ -93,9 +94,9 @@ class pipeNetwork:
 
     def plot(self):
         layout = self.t.layout("kk")
-        self.t.vs["label"]=self.t.vs["name"]#["D"]
-        self.t.es["label"]=self.t.es["L"]
-        igraph.plot(self.t, layout = layout)
+        self.t.vs["label"]=self.t.vs.indices#["index"]#["D"]
+        self.t.es["label"]=self.t.es.indices#["L"]
+        igraph.plot(self.t, bbox = (400,400), layout = layout)
 
     def calcNetwork(self):#calculates the network at the current instace of time
 
