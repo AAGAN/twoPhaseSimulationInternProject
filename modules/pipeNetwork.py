@@ -113,8 +113,8 @@ class pipeNetwork:
         pass 
 
 
-# net = pipeNetwork()
-# net.addSystem(system)
-# net.addAllPipes(pipeSections3, orificeDiam3)
-# net.topoSummary()
-# net.plot()
+net = pipeNetwork()
+net.addSystem(system)
+net.addAllPipes(pipeSections3, orificeDiam3)
+net.topoSummary()
+net.plot()

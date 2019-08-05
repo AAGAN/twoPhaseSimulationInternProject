@@ -41,6 +41,7 @@ class container:
         self.Pb = []
         self.tt = []
         self._endTime = endTime
+        self.Cd = 0.61
         #self.tspan = np.linspace(0,endTime,numTimeSteps) #
 
     def mu(self, T):#=============================================function of film temperature
@@ -106,6 +107,11 @@ class container:
         return h
 
     def mdot_a(self, m_a, T_a, T_w):
+        '''
+        This function is calculating the mass flow rate based on venturi or smooth nozzle 
+        geometry. In this case, the Cd = 1. To use this function for orifice plate or other
+        valves, the Cd of that device should be added to the function.
+        '''
         _k = self.k(T_a)
         _p_a = self.p_a(m_a,self.R_a,T_a,self.V)
         if self.p_b/_p_a > 0.528:
@@ -121,7 +127,7 @@ class container:
             Te = T_a / (1+(_k-1)/2.0)
             ve = ce = (_k*self.R_a*self.g_c*Te)**0.5
             mdote = -p_e/self.R_a/Te*self.A_e*ve
-        return mdote
+        return mdote * self.Cd
 
     def T_e(self, m_a, T_a, T_w):
         _k = self.k(T_a)
@@ -176,8 +182,8 @@ class container:
     #RK4 implementation
     def f(self,t, y):
         self.p_b = (-9.74505954e-06* t**4 + 1.15123832e-03 * t**3 + 9.92757293e-02 * t**2 - 1.84554866e+01 * t + 6.70539113e+02)*6895
-        if self.p_b<=0.0:
-            self.p_b = 0.01
+        if self.p_b<=1e5:
+            self.p_b = 1e5
         self.Pb.append(self.p_b)
         self.tt.append(t)
         dydt = [self.mdot_a(y[0], y[1], y[2]), self.dTa_dt(y[0], y[1], y[2]) , self.dTw_dt(y[0], y[1], y[2])]

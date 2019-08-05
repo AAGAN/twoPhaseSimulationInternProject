@@ -27,7 +27,7 @@ orificeDiam3 = {
     304 : 0.344
 }
 pipeSections3 = [
-    [1 , 2 , 38   , 0  , 0.5 , 80, 0,0,0,0,0,0,0],#startNode,endNode,len,diam,height,Sch,Elb,Stee,Ttee,Cpl,Dtrp,Ptap,SV
+    [1 , 2 , 38   , 0  , 0.5 , 80, 0,0,0,0,0,0,0],#startNode,endNode,len,height,diam,Sch,Elb,Stee,Ttee,Cpl,Dtrp,Ptap,SV
     [2 , 3 , 1    , 0  , 1   , 40, 0,0,0,1,0,0,0],
     [3 , 4 , 14.6 , 0  , 1   , 40, 2,0,0,0,0,0,0],
     [4 , 5 , 15.2 , 0  , 1   , 40, 2,0,0,0,0,0,0],
@@ -44,7 +44,7 @@ pipeSections3 = [
 ]
 
 pipeSections4 = [
-    [1 , 2 , 38   , 0  , 0.5 , 80, 0,0,0,0,0,0,0],#startNode,endNode,len,diam,height,Sch,Elb,Stee,Ttee,Cpl,Dtrp,Ptap,SV
+    [1 , 2 , 38   , 0  , 0.5 , 80, 0,0,0,0,0,0,0],#startNode,endNode,len,height,diam,Sch,Elb,Stee,Ttee,Cpl,Dtrp,Ptap,SV
     [2 , 3 , 1    , 0  , 1   , 40, 0,0,0,1,0,0,0],
     [3 , 4 , 14.6 , 0  , 1   , 40, 2,0,0,0,0,0,0],
     [4 , 5 , 15.2 , 0  , 1   , 40, 2,0,0,0,0,0,0],
