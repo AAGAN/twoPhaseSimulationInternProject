@@ -34,6 +34,7 @@ class pipeNetwork:
         self.t.vs['rho'] = 0 #density
         self.t.vs['D']   = 0 #diameter
         self.t.vs['MFR'] = 0 #mass flow rate
+        self.t.vs['calculated'] = False
         
         #attributes of the edges
         self.t.es['L'] = 0 #length
@@ -48,6 +49,8 @@ class pipeNetwork:
         self.t.es['Ptap'] = 0 #number of pressure taps
         self.t.es['SV'] = 0 #number of selector valves     
         self.t.es['f'] = 0 #friction factor
+        self.t.es['MFR'] = 0 #mass flow rate
+        self.t.es['P0i'] = 0 #initial total pressure calculated
 
     def addSystem(self, _system):
         self.t["agent"] = _system["agent"]
@@ -113,8 +116,8 @@ class pipeNetwork:
         pass 
 
 
-net = pipeNetwork()
-net.addSystem(system)
-net.addAllPipes(pipeSections3, orificeDiam3)
-net.topoSummary()
-net.plot()
+# net = pipeNetwork()
+# net.addSystem(system)
+# net.addAllPipes(pipeSections3, orificeDiam3)
+# net.topoSummary()
+# net.plot()
