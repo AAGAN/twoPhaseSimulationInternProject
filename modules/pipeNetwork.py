@@ -97,9 +97,21 @@ class pipeNetwork:
 
     def plot(self):
         layout = self.t.layout("kk")
-        self.t.vs["label"]=self.t.vs.indices#["index"]#["D"]
-        self.t.es["label"]=self.t.es.indices#["L"]
-        igraph.plot(self.t, bbox = (400,400), layout = layout)
+        #self.t.vs["label"]=self.t.vs.indices#["index"]#["D"]
+        #self.t.es["label"]=self.t.es.indices#["L"]
+        #igraph.plot(self.t, bbox = (1400,1400), layout = layout)
+        visual_style = {}
+        visual_style["vertex_size"] = 40
+        visual_style["vertex_color"] = "red"#[color_dict[gender] for gender in g.vs["gender"]]
+        visual_style["vertex_label"] = self.t.vs["name"]#.indices#["index"]#g.vs["name"]
+        visual_style["vertex_label_size"] = 25
+        visual_style["edge_label"] = self.t.es['L']
+        visual_style["edge_width"] = 5#[1 + 2 * int(is_formal) for is_formal in g.es["is_formal"]]
+        visual_style["edge_label_size"] = 25
+        visual_style["layout"] = layout
+        visual_style["bbox"] = (800, 800)
+        visual_style["margin"] = 50
+        igraph.plot(self.t, **visual_style)
 
     def calcNetwork(self):#calculates the network at the current instace of time
 
@@ -116,8 +128,8 @@ class pipeNetwork:
         pass 
 
 
-# net = pipeNetwork()
-# net.addSystem(system)
-# net.addAllPipes(pipeSections3, orificeDiam3)
-# net.topoSummary()
-# net.plot()
+net = pipeNetwork()
+net.addSystem(system)
+net.addAllPipes(pipeSections3, orificeDiam3)
+net.topoSummary()
+net.plot()
