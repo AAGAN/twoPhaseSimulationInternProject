@@ -28,7 +28,7 @@ class container:
         self.A_e = np.pi * self.D_e **2 / 4.0 #exit area of the nozzle
         self.A_c = np.pi* self.D ** 2 /4.0 #Area of the cylinder
         self.V = self.A_c * self.L # volume inside the tank 
-        self.R_a = 287 #gas constant for gas
+        self.R_a = 8.314/0.0340669#gas constant for gas
         self.c_w = 1250 #specific heat of the tank wall material
         self.g_c = 1 #proportionality appearing in Newton's second law 
         self.g = 9.81 #gravitational acceleration
@@ -45,7 +45,7 @@ class container:
         #self.tspan = np.linspace(0,endTime,numTimeSteps) #
 
     def mu(self, T):#=============================================function of film temperature
-        return 1.8e-3 #* u.kilogram / (u.meter * u.second)
+        return 0.00003544#1.8e-3 #* u.kilogram / (u.meter * u.second)
 
     def k_t(self, T):#=============================================function of film temperature
         return 0.026 #* u.watt / u.meter / u.kelvin #thermal conductivity of the gas==============================
@@ -58,13 +58,13 @@ class container:
         return p
 
     def c_p(self, T):#=============================================function of film temperature
-        return 1000 #* u.joule / u.kilogram / u.kelvin
+        return 775#average between 200 and 350 kelvin for inergen #* u.joule / u.kilogram / u.kelvin
 
     def c_v(self, T):#=============================================function of film temperature
-        return 718 #* u.joule / u.kilogram / u.kelvin
+        return 530#average between 200 and 350 kelvin for inergen  #* u.joule / u.kilogram / u.kelvin
 
     def k(self, T):
-        return self.c_p(T)/self.c_v(T)
+        return 1.4614#k for inergen #self.c_p(T)/self.c_v(T)
         
     def hbar_i(self, T_w, T, ma):
         _beta = self.beta(T)
@@ -114,7 +114,7 @@ class container:
         '''
         _k = self.k(T_a)
         _p_a = self.p_a(m_a,self.R_a,T_a,self.V)
-        if self.p_b/_p_a > 0.528:
+        if self.p_b/_p_a > (2/(_k+1))**(_k/(_k-1)):
             p_e = self.p_b
             Me = 2 / (_k-1) * (1-(p_e/_p_a)**((_k-1)/_k))
             Te = T_a / (1+(_k-1)/2*Me**2)
@@ -122,7 +122,7 @@ class container:
             ve = Me * ce
             mdote = -p_e/self.R_a/Te*self.A_e*ve
         else: #chocked flor for p_b/p_a <= 0.528
-            p_e = 0.528 * _p_a
+            p_e = (2/(_k+1))**(_k/(_k-1)) * _p_a
             Me = 1.0
             Te = T_a / (1+(_k-1)/2.0)
             ve = ce = (_k*self.R_a*self.g_c*Te)**0.5

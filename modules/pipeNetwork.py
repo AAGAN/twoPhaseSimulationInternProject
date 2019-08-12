@@ -6,7 +6,7 @@ from calcTw import calcTw
 from calcQ import calcQ
 from containerClass import container
 #from systemDefinitions import system,nodes,nodes1,pipeSections,pipeSections1
-from systemDefinitions import system,pipeSections,pipeSections1, pipeSections3,orificeDiam3,pipeSections4
+from systemDefinitions import system,pipeSections,pipeSections1, pipeSections3,orificeDiam3,pipeSections4,pipeSections0,orificeDiam0
 
 class pipeNetwork:
     def __init__(self):
@@ -130,6 +130,6 @@ class pipeNetwork:
 
 net = pipeNetwork()
 net.addSystem(system)
-net.addAllPipes(pipeSections3, orificeDiam3)
+net.addAllPipes(pipeSections0, orificeDiam0)
 net.topoSummary()
 net.plot()

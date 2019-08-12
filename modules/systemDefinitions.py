@@ -1,5 +1,15 @@
 system = {"agent":"inergen", "discharge_time":120,"cyl_valve_type":"iflow", "cyl_size" : 140, "cyl_pressure": 3e7}
 
+pipeSections0 = [
+    [ 0 , 1   ,  1   ,   0.025 ,  1    , 80 ,0,0,0,0,0,0,0],#startNode,endNode,len,diam,height,Sch,Elb,Stee,Ttee,Cpl,Dtrp,Ptap,SV
+    [ 1 , 2   ,  0.6 ,   0.025 ,  0.6  , 80 ,1,0,0,0,0,0,0],
+    [ 2 , 3   , 5    ,   0.025 ,  -0.3 , 80 ,2,0,0,0,0,0,0]
+]
+
+orificeDiam0 = {
+    3 : 0.005
+}
+
 pipeSections = [
     [ 1 , 2   ,  1 ,   1 ,  1 , 80 ,0,0,0,0,0,0,0],#startNode,endNode,len,diam,height,Sch,Elb,Stee,Ttee,Cpl,Dtrp,Ptap,SV
     [ 2 , 3   ,  4 ,   1 ,  4 , 80 ,0,0,0,0,0,0,0],
