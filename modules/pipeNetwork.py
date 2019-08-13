@@ -52,6 +52,12 @@ class pipeNetwork:
         self.t.es['MFR'] = 0 #mass flow rate
         self.t.es['P0i'] = 0 #initial total pressure calculated
 
+        #self.nozzles #stores the vertex sequence of all the nozzles
+        #self.tanks #stores the vertex sequence of all the tanks
+        #self.firstTank #index of the first tank vertex
+        #self.lastNozzle  #index of the last nozzle vertex 
+        #self.commonNode # index of the common node
+
     def addSystem(self, _system):
         self.t["agent"] = _system["agent"]
         self.t["discharge_time"] = _system["discharge_time"]
@@ -87,6 +93,41 @@ class pipeNetwork:
         self.addAllNodes(_pipes, _orificeDiams)
         for i in _pipes:
             self.addPipe(i[0],i[1],i[2],i[3],i[4],i[5],i[6],i[7],i[8],i[9],i[10],i[11],i[12],0)
+        #After all the pipes and nodes are added, process the pipe data information 
+        self.processNetwork()
+        self.findCommonNode()
+
+    def processNetwork(self):
+        if len(self.t.vs.select(_outdegree_gt = 2)) > 0 :
+            print('only junctions with 2 outlets are accepted')
+        if len(self.t.vs.select(_indegree_gt = 2)) > 0:
+            print('only junctions with 2 inlets are accepted')
+
+        self.t.vs.select(_outdegree = 0)['type'] = 'nozzle'
+        self.t.vs.select(_indegree = 0)['type'] = 'tank'
+        self.t.vs.select(_outdegree = 2)['type'] = 'tee'
+        self.t.vs.select(_indegree = 2)['type'] = 'tee'
+        self.t.vs.select(_indegree = 1, _outdegree = 1)['type'] = 'coupling'
+        self.nozzles = self.t.vs.select(_outdegree = 0)
+        self.tanks = self.t.vs.select(_indegree = 0)
+        
+        farthest_points = self.t.farthest_points(directed = True)
+        self.firstTank = farthest_points[0]
+        self.lastNozzle = farthest_points[1]
+
+    def findCommonNode(self):
+        commonNodes = []
+        for node in self.t.vs:
+            if node.index not in self.nozzles.indices and node.index not in self.tanks.indices:
+                Common = True
+                for noz in self.nozzles.indices:
+                    for tank in self.tanks.indices:
+                        if self.t.edge_connectivity(node.index,noz)== 0 or self.t.edge_connectivity(tank, node.index)==0:
+                            Common = False
+                            break
+                if Common == True:
+                    commonNodes.append(node.index)
+        self.commonNode = commonNodes[-1]
 
     def topoSummary(self):
         igraph.summary(self.t)
@@ -113,7 +154,15 @@ class pipeNetwork:
         visual_style["margin"] = 50
         igraph.plot(self.t, **visual_style)
 
+    def forwardPass(self):
+        pass
+
+    def backwardPass(self):
+        pass
+
     def calcNetwork(self):#calculates the network at the current instace of time
+
+        
 
         #find the end of manifold node
         #create two networks net1=cylinder bank until the end of manifold node net2=pipe network from the end of manifold node until the nozzles
@@ -126,10 +175,3 @@ class pipeNetwork:
         #compare the pressure of the manifold node from net1 and net2
         #Iterate until the pressure of the manifold node is equal
         pass 
-
-
-net = pipeNetwork()
-net.addSystem(system)
-net.addAllPipes(pipeSections0, orificeDiam0)
-net.topoSummary()
-net.plot()
