@@ -52,6 +52,9 @@ class pipeNetwork:
         self.t.es['MFR'] = 0 #mass flow rate
         self.t.es['P0i'] = 0 #initial total pressure calculated
 
+        self.C1 = 1e-5 #c1 parameter for the ratio function 
+        self.C2 = 1e-5 #c2 parameter for the ratio function
+        self.Err = 0.1 #error in calculating deltaP0
         #self.nozzles #stores the vertex sequence of all the nozzles
         #self.tanks #stores the vertex sequence of all the tanks
         #self.firstTank #index of the first tank vertex
@@ -154,19 +157,152 @@ class pipeNetwork:
         visual_style["margin"] = 50
         igraph.plot(self.t, **visual_style)
 
+    def findNext(self, node, edge):
+        #function to find the next tee, nozzle, tank, commonNode from a node and a pipe based on the direction of the pipe
+        #if the returned degree findNext()[1] is 1:tank or nozzle, 0:commonNode, 3:tee
+        _common = self.commonNode
+        _edge = edge
+        _node = node
+        _graph = self.t
+        _nodeIDs = [node.index]
+        if _node.index == _common:
+            return _nodeIDs, 0
+        if _node.index == _edge.source:
+            #move forward in the graph until the next tee
+            _nextNodeID = _edge.target
+            _nodeIDs.append(_nextNodeID)
+            while _graph.vs[_nextNodeID].degree()==2 and _graph.vs[_nextNodeID].index != _common:
+                _nextNodeID = _graph.vs[_nextNodeID].successors()[0].index
+                _nodeIDs.append(_nextNodeID)
+                
+        elif _node.index == _edge.target:
+            #move backwards in the graph until the next tee
+            _nextNodeID = _edge.source
+            _nodeIDs.append(_nextNodeID)
+            while _graph.vs[_nextNodeID].degree()==2 and _graph.vs[_nextNodeID].index != _common:
+                _nextNodeID = _graph.vs[_nextNodeID].predecessors()[0].index
+                _nodeIDs.append(_nextNodeID)   
+        _nodeType = _graph.vs[_nextNodeID].degree()
+        if _nextNodeID == _common:
+            _nodeType = 0
+        return _nodeIDs, _nodeType
+
+    #Assume 50% division at every node in the beginning
+    def divide(self, ratio2, P_01, P_02,c1,c2, error):
+        del_P = P_02-P_01
+        rat_old= ratio2
+        if del_P > error:
+            rat_new = rat_old* np.exp(-c1*del_P)
+        elif del_P < -error:
+            rat_new = 1 - np.exp(c2*del_P) + rat_old*np.exp(c2*del_P)
+        return rat_new
+
+    #propagate mass flow rates downstream a tee
+    def propagateMFR(self,node, edge1, edge2):
+        P01 = edge1[P0i]
+        P02 = edge2[P0i]
+        MFR1 = edge1['MFR']
+        MFR2 = edge2['MFR']
+        MFR_total = MFR1 + MFR2
+        ratio = MFR2 / MFR_total
+        if np.abs(P01-P02)>Err:
+            ratio_new = divide(ratio,P01,P02,self.C1,self.C2, self.Err)
+            MFR1_new = (1 - ratio_new)*MFR_total 
+            MFR2_new = ratio_new*MFR_total
+            
+            #distribute the MFR1_new to the downstream nozzles evenly
+            nextNodeInEdge1Direction = findNext(node,edge1) #find the next node in edge1 direction
+            if nextNodeInEdge1Direction[1] == 3:#if it is a tee
+                allPassesFromEdge1 = self.t.get_all_shortest_paths(nextNodeInEdge1Direction[0][-1],self.t.vs.select(_outdegree = 0))
+                for noz in allPassesFromEdge1[][-1]:#for noz in all the nozzles after this tee
+                    self.t.vs[noz]['MFR'] = MFR1_new / len(allPassesFromEdge1[][-1])
+            else:#if it is a nozzle
+                self.t.vs[nextNodeInEdge1Direction[0][-1]]['MFR'] = MFR1_new
+            
+            #distribute the MFR2_new to the downstream nozzles evenly
+            nextNodeInEdge2Direction = findNext(node,edge2)
+            if nextNodeInEdge2Direction[1] == 3:
+                allPassesFromEdge2 = self.t.get_all_shortest_paths(nextNodeInEdge2Direction[0][-1],self.t.vs.select(_outdegree = 0))
+                for noz in allPassesFromEdge2[][-1]:
+                    self.t.vs[noz]['MFR'] = MFR2_new / len(allPassesFromEdge2[][-1])
+            else:
+                self.t.vs[nextNodeInEdge2Direction[0][-1]]['MFR'] = MFR2_new
+                
+            #set the 'calculated' property of all the nodes downstream the node to False    
+            for i in self.t.get_all_shortest_paths(node.index,self.t.vs.select(_outdegree = 0)):
+                for j in i:
+                    self.t.vs[j]['calculated'] = False
+                    
+            #set the P0i of all the edges downstream the node to 0
+            for i in self.t.get_all_shortest_paths(node.index,self.t.vs.select(_outdegree = 0)):
+                for k in range(0,len(i)-1):
+                    self.t.es.select(_source = i[k],_target = i[k+1])['P0i'] = 0
+        else:
+            node['calculated'] = True
+            P0 = (P01+P02)/2.0
+            node['P0']=P0
+            edge3 = self.t.es.select(_source = self.t.vs[node.index].predecessors()[0].index , _target = node.index)[0]
+            previousNode = findNext(node,edge3) 
+            #calculate the properties for all the nodes until the next node backwards
+            #set all the P0i for edges until the next node and set 'calculated' property of all nodes until the next node to True
+
+    #function to calculate the pressure drop between two nodes (from source to target)
+    #calculates all the properties on the path from the source to the target node 
+    #saves all the properties on the pipes and nodes. except for MFR and P0
+    #there should be only one path between source and target nodes
+    def calcNode(self,source, target, graph):
+        #find all the nodes between the source and the target
+        # nodes = graph.get_shortest_paths(source.index, target.index,mode='ALL')
+        # for i in range(0,len(nodes)-1):
+        #     edge = graph.es.select(_source = i, _target = i+1)
+        #     #if we're going in the direction of the flow, then edge['L'] is positive, otherwise we need to multiply it by (-1)
+        #     calcEdge = calcQ(edge['L'],...)
+        pass
+
     def forwardPass(self):
+        #tank1 = net.t.vs[firstTank]
+        # tank1Valve = net.t.vs[firstTank].successors()[0]
+        # initialMdot0Guess = mdot0
+        # g.es.select(_source = tank1.index, _target = tank1Valve.index)[0]['MFR'] = initialMdot0Guess #initial guess by considering a small dt for the container function
+        # nextEdge = g.es.select(_source = tank1Valve.index, _target = tank1Valve.successors()[0].index)
+        # if tank1Valve.index == commonNode:
+        #     pass
+        #     #calculate the properties for the common node and store it in that node
+        # else:
+        #     nextNode = findNext(tank1Valve,nextEdge[0],g,commonNode)
+        #     #calculate the properties for the next node and store the properties on the next node
+        #     calcNode(tank1Valve,nextNode[0][-1],g)
+        #     while nextNode[0][-1] != commonNode:
+        #         pass
+        #         #find the oposite edge
+        #         #find the next tank in the oposite edge direction
+        #         #guess a mfr value for this tank
+        #         #calculate the properties until the node
+        #         #compare the P01 and P02 using the function ratio
+        #         #if dp is good then assign average p0 to the node 
+        #         #add the mfr from both inputs to the next edge
+        #         #find the next node
+        #         #calculate the properties for the next node and store the properties on that next node except MFR and P0, MFR and P0 should be saved only on the pipes
         pass
 
     def backwardPass(self):
-        pass
+        #Backward pass implementation
+        # g.vs[commonNode]['MFR'] = 1
+        # totalMFR = g.vs[commonNode]['MFR']
+        # nozzles = g.vs.select(_outdegree = 0)
+        # for i in nozzles:
+        #     i['MFR'] = totalMFR / len(nozzles)
+        #     i['calculated'] = False
+        #     #print(i['MFR'])
+
+        # for noz in nozzles:
+        #     if noz['calculated'] == False:
+        #         print(findNext(noz,g.es.select(_target = noz.index)[0],g,commonNode))
+        #         path = findNext(noz,g.es.select(_target = noz.index)[0],g,commonNode)
+        #         calcNode(g.vs[path[0][0]],g.vs[path[0][-1]],g)
 
     def calcNetwork(self):#calculates the network at the current instace of time
 
-        
-
-        #find the end of manifold node
-        #create two networks net1=cylinder bank until the end of manifold node net2=pipe network from the end of manifold node until the nozzles
-        #find all the nozzles in net2
         #create a queue for all tees in net2
         #calculate the pressure from each nozzle to the upstream tee or manifold node
         #if p is calculated from both branches of the tee then calculate the pressure at that tee by iterating over the mass flow rates
