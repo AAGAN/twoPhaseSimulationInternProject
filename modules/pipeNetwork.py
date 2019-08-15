@@ -5,7 +5,7 @@ import igraph
 from calcTw import calcTw
 from calcQ import calcQ
 from containerClass import container
-#from systemDefinitions import system,nodes,nodes1,pipeSections,pipeSections1
+from orificeForward import main_nozzle_forward, mass_critical
 from systemDefinitions import system,pipeSections,pipeSections1, pipeSections3,orificeDiam3,pipeSections4,pipeSections0,orificeDiam0
 
 class pipeNetwork:
@@ -139,23 +139,30 @@ class pipeNetwork:
         for i in self.t.vs:
             print(i['name'],i.index,i.degree(),i.degree(mode='OUT'),i.degree(mode='IN'))
 
-    def plot(self):
+    def plot(self,vertexLabel,edgeLabel):
         layout = self.t.layout("kk")
         #self.t.vs["label"]=self.t.vs.indices#["index"]#["D"]
         #self.t.es["label"]=self.t.es.indices#["L"]
         #igraph.plot(self.t, bbox = (1400,1400), layout = layout)
         visual_style = {}
-        visual_style["vertex_size"] = 40
+        visual_style["vertex_size"] = 15#40
         visual_style["vertex_color"] = "red"#[color_dict[gender] for gender in g.vs["gender"]]
-        visual_style["vertex_label"] = self.t.vs["name"]#.indices#["index"]#g.vs["name"]
-        visual_style["vertex_label_size"] = 25
-        visual_style["edge_label"] = self.t.es['L']
-        visual_style["edge_width"] = 5#[1 + 2 * int(is_formal) for is_formal in g.es["is_formal"]]
-        visual_style["edge_label_size"] = 25
+        if vertexLabel == "index":
+            visual_style["vertex_label"] = self.t.vs.indices#["index"]#g.vs["name"]
+        else:
+            visual_style["vertex_label"] = self.t.vs[vertexLabel]#.indices#["index"]#g.vs["name"]
+        visual_style["vertex_label_size"] = 10#25
+        if edgeLabel == "index":
+            visual_style["edge_label"] = self.t.es.indices
+        else:
+            visual_style["edge_label"] = self.t.es[edgeLabel]
+        
+        visual_style["edge_width"] = 2#5#[1 + 2 * int(is_formal) for is_formal in g.es["is_formal"]]
+        visual_style["edge_label_size"] = 10#25
         visual_style["layout"] = layout
-        visual_style["bbox"] = (800, 800)
+        visual_style["bbox"] = (400,400)#(800, 800)
         visual_style["margin"] = 50
-        igraph.plot(self.t, **visual_style)
+        return igraph.plot(self.t, **visual_style)
 
     def findNext(self, node, edge):
         #function to find the next tee, nozzle, tank, commonNode from a node and a pipe based on the direction of the pipe
@@ -181,7 +188,9 @@ class pipeNetwork:
             _nodeIDs.append(_nextNodeID)
             while _graph.vs[_nextNodeID].degree()==2 and _graph.vs[_nextNodeID].index != _common:
                 _nextNodeID = _graph.vs[_nextNodeID].predecessors()[0].index
-                _nodeIDs.append(_nextNodeID)   
+                _nodeIDs.append(_nextNodeID)
+        else:
+            return "edge is not connected to the node!"
         _nodeType = _graph.vs[_nextNodeID].degree()
         if _nextNodeID == _common:
             _nodeType = 0
@@ -199,32 +208,34 @@ class pipeNetwork:
 
     #propagate mass flow rates downstream a tee
     def propagateMFR(self,node, edge1, edge2):
-        P01 = edge1[P0i]
-        P02 = edge2[P0i]
+        P01 = edge1['P0i']
+        P02 = edge2['P0i']
         MFR1 = edge1['MFR']
         MFR2 = edge2['MFR']
         MFR_total = MFR1 + MFR2
         ratio = MFR2 / MFR_total
-        if np.abs(P01-P02)>Err:
-            ratio_new = divide(ratio,P01,P02,self.C1,self.C2, self.Err)
+        if np.abs(P01-P02)>self.Err:
+            ratio_new = self.divide(ratio,P01,P02,self.C1,self.C2, self.Err)
             MFR1_new = (1 - ratio_new)*MFR_total 
             MFR2_new = ratio_new*MFR_total
             
             #distribute the MFR1_new to the downstream nozzles evenly
-            nextNodeInEdge1Direction = findNext(node,edge1) #find the next node in edge1 direction
+            nextNodeInEdge1Direction = self.findNext(node,edge1) #find the next node in edge1 direction
             if nextNodeInEdge1Direction[1] == 3:#if it is a tee
                 allPassesFromEdge1 = self.t.get_all_shortest_paths(nextNodeInEdge1Direction[0][-1],self.t.vs.select(_outdegree = 0))
-                for noz in allPassesFromEdge1[][-1]:#for noz in all the nozzles after this tee
-                    self.t.vs[noz]['MFR'] = MFR1_new / len(allPassesFromEdge1[][-1])
+                allNozzleIndicesFromEdge1 = [L[-1] for L in allPassesFromEdge1]
+                for noz in allNozzleIndicesFromEdge1:#allPassesFromEdge1[][-1]:#for noz in all the nozzles after this tee
+                    self.t.vs[noz]['MFR'] = MFR1_new / len(allNozzleIndicesFromEdge1)
             else:#if it is a nozzle
                 self.t.vs[nextNodeInEdge1Direction[0][-1]]['MFR'] = MFR1_new
             
             #distribute the MFR2_new to the downstream nozzles evenly
-            nextNodeInEdge2Direction = findNext(node,edge2)
+            nextNodeInEdge2Direction = self.findNext(node,edge2)
             if nextNodeInEdge2Direction[1] == 3:
                 allPassesFromEdge2 = self.t.get_all_shortest_paths(nextNodeInEdge2Direction[0][-1],self.t.vs.select(_outdegree = 0))
-                for noz in allPassesFromEdge2[][-1]:
-                    self.t.vs[noz]['MFR'] = MFR2_new / len(allPassesFromEdge2[][-1])
+                allNozzleIndicesFromEdge2 = [L[-1] for L in allPassesFromEdge2]
+                for noz in allNozzleIndicesFromEdge2:#allPassesFromEdge2[][-1]:
+                    self.t.vs[noz]['MFR'] = MFR2_new / len(allNozzleIndicesFromEdge2)
             else:
                 self.t.vs[nextNodeInEdge2Direction[0][-1]]['MFR'] = MFR2_new
                 
@@ -242,15 +253,18 @@ class pipeNetwork:
             P0 = (P01+P02)/2.0
             node['P0']=P0
             edge3 = self.t.es.select(_source = self.t.vs[node.index].predecessors()[0].index , _target = node.index)[0]
-            previousNode = findNext(node,edge3) 
+            previousNode = self.findNext(node,edge3) 
             #calculate the properties for all the nodes until the next node backwards
             #set all the P0i for edges until the next node and set 'calculated' property of all nodes until the next node to True
 
-    #function to calculate the pressure drop between two nodes (from source to target)
-    #calculates all the properties on the path from the source to the target node 
-    #saves all the properties on the pipes and nodes. except for MFR and P0
-    #there should be only one path between source and target nodes
+    
     def calcNode(self,source, target, graph):
+        '''
+            function to calculate the pressure drop between two nodes (from source to target)
+            calculates all the properties on the path from the source to the target node 
+            saves all the properties on the pipes and nodes. except for MFR and P0
+            there should be only one path between source and target nodes
+        '''
         #find all the nodes between the source and the target
         # nodes = graph.get_shortest_paths(source.index, target.index,mode='ALL')
         # for i in range(0,len(nodes)-1):
@@ -300,9 +314,9 @@ class pipeNetwork:
         #         print(findNext(noz,g.es.select(_target = noz.index)[0],g,commonNode))
         #         path = findNext(noz,g.es.select(_target = noz.index)[0],g,commonNode)
         #         calcNode(g.vs[path[0][0]],g.vs[path[0][-1]],g)
+        pass
 
     def calcNetwork(self):#calculates the network at the current instace of time
-
         #create a queue for all tees in net2
         #calculate the pressure from each nozzle to the upstream tee or manifold node
         #if p is calculated from both branches of the tee then calculate the pressure at that tee by iterating over the mass flow rates
@@ -310,4 +324,4 @@ class pipeNetwork:
         #start from the most remote cylinder and calculate the pressure downstream until all the properties on tees are known
         #compare the pressure of the manifold node from net1 and net2
         #Iterate until the pressure of the manifold node is equal
-        pass 
+        pass
