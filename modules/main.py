@@ -7,11 +7,6 @@ from containerClass import container
 from systemDefinitions import system,pipeSections3,orificeDiam3,pipeSections0,orificeDiam0
 
 m = mixture.Mixture(['nitrogen','argon','carbon dioxide'], zs=[.52, .4, .08], T = 300, P=1e5)
-
-#print("Cp = {:.4f}, Cv = {:.4f}, mu = {:.8f}, MW = {:.4f}, SG = {:.4f}, Cp/Cv = {:.4f}, Z = {:.4f}".format(m.Cp, m.Cvg, m.mu, m.MW, m.SG, m.isentropic_exponent, m.Z))
-
-#m = mixture.Mixture(['nitrogen','argon','carbon dioxide'], zs=[.52, .4, .08], T = 250, P=1e5)
-
 #print("Cp = {:.4f}, Cv = {:.4f}, mu = {:.8f}, MW = {:.4f}, SG = {:.4f}, Cp/Cv = {:.4f}, Z = {:.4f}".format(m.Cp, m.Cvg, m.mu, m.MW, m.SG, m.isentropic_exponent, m.Z))
 
 net = pipeNetwork()
