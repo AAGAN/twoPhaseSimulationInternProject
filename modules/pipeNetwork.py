@@ -144,24 +144,34 @@ class pipeNetwork:
         #self.t.vs["label"]=self.t.vs.indices#["index"]#["D"]
         #self.t.es["label"]=self.t.es.indices#["L"]
         #igraph.plot(self.t, bbox = (1400,1400), layout = layout)
+        edge_labels = []
+        vertex_labels = []
         visual_style = {}
         visual_style["vertex_size"] = 15#40
         visual_style["vertex_color"] = "red"#[color_dict[gender] for gender in g.vs["gender"]]
+        
         if vertexLabel == "index":
             visual_style["vertex_label"] = self.t.vs.indices#["index"]#g.vs["name"]
         else:
-            visual_style["vertex_label"] = self.t.vs[vertexLabel]#.indices#["index"]#g.vs["name"]
-        visual_style["vertex_label_size"] = 10#25
+            for i in range(0,len(self.t.vs.indices)):
+                vertex_labels.append([self.t.vs[i].index , self.t.vs[i][vertexLabel]])
+            visual_style["vertex_label"] = vertex_labels
+        
         if edgeLabel == "index":
             visual_style["edge_label"] = self.t.es.indices
         else:
-            visual_style["edge_label"] = self.t.es[edgeLabel]
-        
+            for i in range(0,len(self.t.es.indices)):
+                edge_labels.append([self.t.es[i].index , self.t.es[i][edgeLabel]])
+            visual_style["edge_label"] = edge_labels
+                
+        visual_style["vertex_label_size"] = 10#25
         visual_style["edge_width"] = 2#5#[1 + 2 * int(is_formal) for is_formal in g.es["is_formal"]]
         visual_style["edge_label_size"] = 10#25
         visual_style["layout"] = layout
         visual_style["bbox"] = (400,400)#(800, 800)
         visual_style["margin"] = 50
+        # print(edge_labels)
+        # print(vertex_labels)
         return igraph.plot(self.t, **visual_style)
 
     def findNext(self, node, edge):
@@ -215,7 +225,8 @@ class pipeNetwork:
         MFR_total = MFR1 + MFR2
         ratio = MFR2 / MFR_total
         if np.abs(P01-P02)>self.Err:
-            ratio_new = self.divide(ratio,P01,P02,self.C1,self.C2, self.Err)
+            #ratio_new = self.divide(ratio,P01,P02,self.C1,self.C2, self.Err)
+            ratio_new = 0.1
             MFR1_new = (1 - ratio_new)*MFR_total 
             MFR2_new = ratio_new*MFR_total
             
