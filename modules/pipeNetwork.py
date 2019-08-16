@@ -225,7 +225,7 @@ class pipeNetwork:
         MFR_total = MFR1 + MFR2
         ratio = MFR2 / MFR_total
         if np.abs(P01-P02)>self.Err:
-            #ratio_new = self.divide(ratio,P01,P02,self.C1,self.C2, self.Err)
+            ratio_new = self.divide(ratio,P01,P02,self.C1,self.C2, self.Err)
             ratio_new = 0.1
             MFR1_new = (1 - ratio_new)*MFR_total 
             MFR2_new = ratio_new*MFR_total
