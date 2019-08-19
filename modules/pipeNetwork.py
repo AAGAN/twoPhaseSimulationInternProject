@@ -55,6 +55,11 @@ class pipeNetwork:
         self.C1 = 1e-5 #c1 parameter for the ratio function 
         self.C2 = 1e-5 #c2 parameter for the ratio function
         self.Err = 0.1 #error in calculating deltaP0
+        self.numSteps = 1000
+        self.Q = 1 #(Tw-T0) for the case of constant heat flux to the pipe
+        self.Tw = 300 #wall temperature for the case of constant wall temperature
+        self.gamma = 1.4
+        self.ff = 0.005 #friction factor of pipes
         #self.nozzles #stores the vertex sequence of all the nozzles
         #self.tanks #stores the vertex sequence of all the tanks
         #self.firstTank #index of the first tank vertex
@@ -117,6 +122,7 @@ class pipeNetwork:
         farthest_points = self.t.farthest_points(directed = True)
         self.firstTank = farthest_points[0]
         self.lastNozzle = farthest_points[1]
+        self.t.es['f'] = self.ff
 
     def findCommonNode(self):
         commonNodes = []
@@ -269,20 +275,34 @@ class pipeNetwork:
             #set all the P0i for edges until the next node and set 'calculated' property of all nodes until the next node to True
 
     
-    def calcNode(self,source, target, graph):
+    def calcNode(self,source, target):
         '''
             function to calculate the pressure drop between two nodes (from source to target)
             calculates all the properties on the path from the source to the target node 
             saves all the properties on the pipes and nodes. except for MFR and P0
             there should be only one path between source and target nodes
         '''
-        #find all the nodes between the source and the target
-        # nodes = graph.get_shortest_paths(source.index, target.index,mode='ALL')
-        # for i in range(0,len(nodes)-1):
-        #     edge = graph.es.select(_source = i, _target = i+1)
-        #     #if we're going in the direction of the flow, then edge['L'] is positive, otherwise we need to multiply it by (-1)
-        #     calcEdge = calcQ(edge['L'],...)
-        pass
+        nodes = self.t.get_shortest_paths(source.index, target.index,mode='ALL')[0]
+        direction = 1.0
+        if len(self.t.es.select(_from = nodes[0], _to = nodes[1])) == 0:
+            direction = -1.0
+        for i in range(len(nodes)-1):
+            if direction == 1:
+                edge = self.t.es.select(_from = nodes[i], _to = nodes[i+1])[0]
+            else:
+                edge = self.t.es.select(_from = nodes[i+1], _to = nodes[i])[0]
+                
+            #if we're going in the direction of the flow, then edge['L'] is positive, otherwise we need to multiply it by (-1)
+            calcEdge = calcTw(direction*edge['L'],edge['D'],self.t.vs[nodes[i]]['M'],edge['f'],self.t.vs[nodes[i]]['T0'],self.t.vs[nodes[i]]['T'],self.t.vs[nodes[i]]['P0'],
+            self.t.vs[nodes[i]]['P'],self.t.vs[nodes[i]]['rho'],self.gamma,self.Tw,self.numSteps)
+            calcEdge.solve()
+            self.t.vs[nodes[i+1]]['M'] = calcEdge._M2
+            self.t.vs[nodes[i+1]]['T0'] = calcEdge._T02
+            self.t.vs[nodes[i+1]]['T'] = calcEdge._T2
+            self.t.vs[nodes[i+1]]['P'] = calcEdge._P2
+            self.t.vs[nodes[i+1]]['P0'] = calcEdge._P02
+            self.t.vs[nodes[i+1]]['rho'] = calcEdge._rho2              
+
 
     def forwardPass(self):
         #tank1 = net.t.vs[firstTank]

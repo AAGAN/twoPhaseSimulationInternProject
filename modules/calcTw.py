@@ -12,7 +12,6 @@ class calcTw:
                 P01, #initial pressure of the gas
                 P1, #initial pressure of the gas
                 rho1, #initial density of the gas
-                V1, #initial velocity of the gas
                 gamma, #ratio of specific heats
                 Tw, #wall temperature for the case of constant wall temperature
                 numSteps = 10000 #number of steps from the begining to the end of the pipe
@@ -29,7 +28,6 @@ class calcTw:
         self._Tw = Tw
         self._numSteps = numSteps
         self._rho1 = rho1
-        self._V1 = V1
 
     def FuncT0(self, Msq, Gamma):
         FuncT0 = Msq*(1.0+Gamma*Msq)*(1.0+(Gamma-1.0)/2.0*Msq)/(1.0-Msq)
