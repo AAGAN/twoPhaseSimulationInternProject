@@ -60,6 +60,7 @@ class pipeNetwork:
         self.Tw = 300 #wall temperature for the case of constant wall temperature
         self.gamma = 1.4
         self.ff = 0.005 #friction factor of pipes
+        self.Mdot0 = 0.1 #kg/s initial mass flow rate guess for the first tank
         #self.nozzles #stores the vertex sequence of all the nozzles
         #self.tanks #stores the vertex sequence of all the tanks
         #self.firstTank #index of the first tank vertex
@@ -303,33 +304,56 @@ class pipeNetwork:
             self.t.vs[nodes[i+1]]['P0'] = calcEdge._P02
             self.t.vs[nodes[i+1]]['rho'] = calcEdge._rho2              
 
+    def calcAfterOrifice(self, MFR,M1, P01, T01, P1, T1, Ao, A1, A2):
+        '''
+        calculates the properties after an orifice (section A2) given the mass flow rate through and the pressure before
+        '''
+        r = 0.5
+        M2 = r * M1
+        P02 = r * P01
+        P2 = r * P1
+        T2 = r * T1
+        T02 = r * T01 
+        return M2,P02,T02,P2,T2
+
+    def calcBeforeOrifice(self,MFR, M2, P02, T02, P2, T2, Ao, A1, A2):
+        '''
+        calculates the properties before an orifice (section A1) given the mass flow rate through and pressure after the nozzle
+        '''
+        r = 1.2
+        M1 = r * M2
+        P01 = r * P02
+        T01 = r * T02
+        P1 = r * P2
+        T1 = r * T2
+        return M1,P01,T01,P1,T1
 
     def forwardPass(self):
-        #tank1 = net.t.vs[firstTank]
-        # tank1Valve = net.t.vs[firstTank].successors()[0]
-        # initialMdot0Guess = mdot0
-        # g.es.select(_source = tank1.index, _target = tank1Valve.index)[0]['MFR'] = initialMdot0Guess #initial guess by considering a small dt for the container function
-        # nextEdge = g.es.select(_source = tank1Valve.index, _target = tank1Valve.successors()[0].index)
-        # if tank1Valve.index == commonNode:
-        #     pass
-        #     #calculate the properties for the common node and store it in that node
-        # else:
-        #     nextNode = findNext(tank1Valve,nextEdge[0],g,commonNode)
-        #     #calculate the properties for the next node and store the properties on the next node
-        #     calcNode(tank1Valve,nextNode[0][-1],g)
-        #     while nextNode[0][-1] != commonNode:
-        #         pass
-        #         #find the oposite edge
-        #         #find the next tank in the oposite edge direction
-        #         #guess a mfr value for this tank
-        #         #calculate the properties until the node
-        #         #compare the P01 and P02 using the function ratio
-        #         #if dp is good then assign average p0 to the node 
-        #         #add the mfr from both inputs to the next edge
-        #         #find the next node
-        #         #calculate the properties for the next node and store the properties on that next node except MFR and P0, MFR and P0 should be saved only on the pipes
-        pass
-
+        firstTank = self.firstTank #id of the first tank's node
+        tank1 = self.t.vs[firstTank]
+        tank1Valve = self.t.vs[firstTank].successors()[0]
+        initialMdot0Guess = self.Mdot0
+        self.t.es.select(_source = tank1.index, _target = tank1Valve.index)[0]['MFR'] = initialMdot0Guess #initial guess by considering a small dt for the container function
+        nextEdge = self.t.es.select(_source = tank1Valve.index, _target = tank1Valve.successors()[0].index)
+        if tank1Valve.index == self.commonNode:
+            pass
+            #calculate the properties for the common node and store it in that node
+        else:
+            nextNode = self.findNext(tank1Valve,nextEdge[0])
+            #calculate the properties for the next node and store the properties on the next node
+            self.calcNode(self.t.vs[tank1Valve],nextNode[0][-1])
+            while nextNode[0][-1] != self.commonNode:
+                pass
+                #find the oposite edge
+                #find the next tank in the oposite edge direction
+                #guess a mfr value for this tank
+                #calculate the properties until the node
+                #compare the P01 and P02 using the function ratio
+                #if dp is good then assign average p0 to the node 
+                #add the mfr from both inputs to the next edge
+                #find the next node
+                #calculate the properties for the next node and store the properties on that next node except MFR and P0, MFR and P0 should be saved only on the pipes
+        
     def backwardPass(self):
         #Backward pass implementation
         # g.vs[commonNode]['MFR'] = 1
