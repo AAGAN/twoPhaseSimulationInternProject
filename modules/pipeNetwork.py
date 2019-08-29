@@ -303,7 +303,6 @@ class pipeNetwork:
             self.t.vs[nodes[i+1]]['P0'] = calcEdge._P02
             self.t.vs[nodes[i+1]]['rho'] = calcEdge._rho2              
 
-
     def forwardPass(self):
         #tank1 = net.t.vs[firstTank]
         # tank1Valve = net.t.vs[firstTank].successors()[0]
