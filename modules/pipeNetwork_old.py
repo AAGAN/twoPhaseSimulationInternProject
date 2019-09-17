@@ -275,7 +275,6 @@ class pipeNetwork:
             #calculate the properties for all the nodes until the next node backwards
             #set all the P0i for edges until the next node and set 'calculated' property of all nodes until the next node to True
 
-    
     def calcNode(self,source, target):
         '''
             function to calculate the pressure drop between two nodes (from source to target)
@@ -302,7 +301,9 @@ class pipeNetwork:
             self.t.vs[nodes[i+1]]['T'] = calcEdge._T2
             self.t.vs[nodes[i+1]]['P'] = calcEdge._P2
             self.t.vs[nodes[i+1]]['P0'] = calcEdge._P02
-            self.t.vs[nodes[i+1]]['rho'] = calcEdge._rho2              
+            self.t.vs[nodes[i+1]]['rho'] = calcEdge._rho2
+            self.t.vs[nodes[i+1]]['calculated'] = True
+            self.t.es[edge.index]['P0i'] = calcEdge._P02              
 
     def calcAfterOrifice(self, MFR,M1, P01, T01, P1, T1, Ao, A1, A2):
         '''
@@ -341,18 +342,20 @@ class pipeNetwork:
         else:
             nextNode = self.findNext(tank1Valve,nextEdge[0])
             #calculate the properties for the next node and store the properties on the next node
-            self.calcNode(self.t.vs[tank1Valve],nextNode[0][-1])
+            self.calcNode(tank1Valve,self.t.vs[nextNode[0][-1]])
             while nextNode[0][-1] != self.commonNode:
-                pass
-                #find the oposite edge
-                #find the next tank in the oposite edge direction
-                #guess a mfr value for this tank
-                #calculate the properties until the node
-                #compare the P01 and P02 using the function ratio
-                #if dp is good then assign average p0 to the node 
-                #add the mfr from both inputs to the next edge
-                #find the next node
-                #calculate the properties for the next node and store the properties on that next node except MFR and P0, MFR and P0 should be saved only on the pipes
+                nextEdge = self.t.es.select(_source = nextNode[0][-1],_target = self.t.vs[nextNode[0][-1]])
+                self.findNext(nextNode)
+                #1 find the oposite edge
+                #2 find the next tank in the oposite edge direction
+                #3 guess a mfr value for this tank
+                #4 calculate the properties until the node
+                #5 compare the P01 and P02 using the function ratio
+                #6 if dp is good then assign average p0 to the node 
+                    #7 if dp is not good, update the value of mfr and go to step 4
+                #8 add the mfr from both inputs to the next edge
+                #9 find the next node
+                #10 calculate the properties for the next node and store the properties on that next node except MFR and P0, MFR and P0 should be saved only on the pipes
         
     def backwardPass(self):
         #Backward pass implementation
