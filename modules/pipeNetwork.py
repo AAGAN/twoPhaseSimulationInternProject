@@ -158,7 +158,7 @@ class pipeNetwork:
         visual_style["vertex_color"] = "red"#[color_dict[gender] for gender in g.vs["gender"]]
         
         if vertexLabel == "index":
-            visual_style["vertex_label"] = self.t.vs.indices#["index"]#g.vs["name"]
+            visual_style["vertex_label"] = self.t.vs.indices #["index"]#g.vs["name"]
         else:
             for i in range(0,len(self.t.vs.indices)):
                 vertex_labels.append([self.t.vs[i].index , self.t.vs[i][vertexLabel]])
@@ -177,8 +177,8 @@ class pipeNetwork:
         visual_style["layout"] = layout
         visual_style["bbox"] = (400,400)#(800, 800)
         visual_style["margin"] = 50
-        # print(edge_labels)
-        # print(vertex_labels)
+        #print(visual_style["vertex_label"])
+        #print(visual_style["edge_label"])
         return igraph.plot(self.t, **visual_style)
 
     def findNext(self, node, edge):
@@ -301,8 +301,9 @@ class pipeNetwork:
             self.t.vs[nodes[i+1]]['T0'] = calcEdge._T02
             self.t.vs[nodes[i+1]]['T'] = calcEdge._T2
             self.t.vs[nodes[i+1]]['P'] = calcEdge._P2
-            if i != len(nodes)-1:
+            if i != len(nodes)-2:
                 self.t.vs[nodes[i+1]]['P0'] = calcEdge._P02
+            edge['P0i'] = calcEdge._P02 #this will be the calculated total pressure at the end of the pipe depending on the direction of calc
             self.t.vs[nodes[i+1]]['rho'] = calcEdge._rho2              
 
     def calcAfterOrifice(self, MFR,M1, P01, T01, P1, T1, Ao, A1, A2):
