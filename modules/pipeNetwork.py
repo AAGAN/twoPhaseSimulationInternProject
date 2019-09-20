@@ -301,7 +301,8 @@ class pipeNetwork:
             self.t.vs[nodes[i+1]]['T0'] = calcEdge._T02
             self.t.vs[nodes[i+1]]['T'] = calcEdge._T2
             self.t.vs[nodes[i+1]]['P'] = calcEdge._P2
-            self.t.vs[nodes[i+1]]['P0'] = calcEdge._P02
+            if i != len(nodes)-1:
+                self.t.vs[nodes[i+1]]['P0'] = calcEdge._P02
             self.t.vs[nodes[i+1]]['rho'] = calcEdge._rho2              
 
     def calcAfterOrifice(self, MFR,M1, P01, T01, P1, T1, Ao, A1, A2):
@@ -343,6 +344,7 @@ class pipeNetwork:
             #calculate the properties for the next node and store the properties on the next node
             self.calcNode(self.t.vs[tank1Valve],self.t.vs[nextNode])
             while nextNode[0][-1] != self.commonNode:
+                print("so far we can only do one cylinder systems")
                 pass
                 #find the oposite edge
                 #find the next tank in the oposite edge direction
