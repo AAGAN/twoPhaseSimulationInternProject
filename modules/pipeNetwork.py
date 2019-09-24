@@ -272,9 +272,7 @@ class pipeNetwork:
             node['P0']=P0
             edge3 = self.t.es.select(_source = self.t.vs[node.index].predecessors()[0].index , _target = node.index)[0]
             previousNode = self.findNext(node,edge3) 
-            #calculate the properties for all the nodes until the next node backwards
-            #set all the P0i for edges until the next node and set 'calculated' property of all nodes until the next node to True
-
+            self.calcNode(node,self.t.vs[previousNode[0][-1]]) #calculate the properties for all the nodes until the next node backwards
     
     def calcNode(self,source, target):
         '''
