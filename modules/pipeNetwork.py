@@ -321,7 +321,7 @@ class pipeNetwork:
         calculates the properties before an orifice (section A1) given the mass flow rate through and pressure after the nozzle
         '''
         r = 1.2
-        M1 = r * M2
+        M1 = M2 / r 
         P01 = r * P02
         T01 = r * T02
         P1 = r * P2
