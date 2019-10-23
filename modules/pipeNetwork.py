@@ -60,6 +60,8 @@ class pipeNetwork:
         self.Tw = 300 #wall temperature for the case of constant wall temperature
         self.gamma = 1.4
         self.ff = 0.005 #friction factor of pipes
+        self.Cd_orifice = 0.6 #coefficient of discharge for orifices
+        self.Cd_valve = 0.6 #coefficient of discharge for valves
         self.Mdot0 = 0.1 #kg/s initial mass flow rate guess for the first tank
         #self.nozzles #stores the vertex sequence of all the nozzles
         #self.tanks #stores the vertex sequence of all the tanks
@@ -306,26 +308,29 @@ class pipeNetwork:
 
     def calcAfterOrifice(self, MFR,M1, P01, T01, P1, T1, Ao, A1, A2):
         '''
-        calculates the properties after an orifice (section A2) given the mass flow rate through and the pressure before
+        calculates the properties after an orifice (section Ao) given the mass flow rate through and the pressure before
+        page 13-14-15 of the paper
         '''
-        r = 0.5
-        M2 = r * M1
-        P02 = r * P01
-        P2 = r * P1
-        T2 = r * T1
-        T02 = r * T01 
+        #calculate the critical mass flow rate from equation 
+        mdotCritical = self.Cd_orifice*Ao*P1*np.sqrt(2/self.R/T1)*np.sqrt(self.gamma/(self.gamma+1)*(2/(self.gamma+1))**(2/(self.gamma-1)))
+        if mdotCritical<MFR:
+            return mdotCritical/MFR #the main code should reduce the initial mass flow from the first tank by this amount and restart the calculation
+        elif mdotCritical == MFR: #flow is chocked and equations 4 and 5 needs to be solved to achive the properties after the orifice
+            P2Critical = P1 * (2/(self.gamma+1))**(self.gamma/(self.gamma-1))
+        else: #flow is not chocked and equations 1,2,3 should be solved to find the properties after the orifice
+            
         return M2,P02,T02,P2,T2
 
     def calcBeforeOrifice(self,MFR, M2, P02, T02, P2, T2, Ao, A1, A2):
         '''
         calculates the properties before an orifice (section A1) given the mass flow rate through and pressure after the nozzle
         '''
-        r = 1.2
-        M1 = M2 / r 
-        P01 = r * P02
-        T01 = r * T02
-        P1 = r * P2
-        T1 = r * T2
+        r = 200
+        M1 = MFR / self.t.vs[self.commonNode]['MFR'] 
+        P01 = r * M1
+        T01 = r * M1
+        P1 = r * M1
+        T1 = r * M1
         return M1,P01,T01,P1,T1
 
     def forwardPass(self):

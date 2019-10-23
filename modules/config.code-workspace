@@ -1,0 +1,17 @@
+{
+	"folders": [
+		{
+			"path": "C:\\Users\\jahmada\\OneDrive - Johnson Controls\\CleanAgentSoftware\\twoPhaseSimulationInternProject"
+		},
+		{
+			"name": "WIT_Arduino_GrandCentral",
+			"path": "C:\\Users\\jahmada\\Documents\\PlatformIO\\Projects\\WIT_Arduino_GrandCentral"
+		}
+	],
+	"settings": {
+		"terminal.integrated.env.windows": {
+			"PATH": "C:\\Users\\jahmada\\.platformio\\penv\\Scripts;C:\\Users\\jahmada\\.platformio\\penv;C:\\Python27\\;C:\\Python27\\Scripts;C:\\Program Files\\Common Files\\Microsoft Shared\\Microsoft Online Services;C:\\Program Files (x86)\\Common Files\\Microsoft Shared\\Microsoft Online Services;C:\\ProgramData\\Oracle\\Java\\javapath;C:\\WINDOWS\\system32;C:\\WINDOWS;C:\\WINDOWS\\System32\\Wbem;C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\;C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\;C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\;C:\\Program Files (x86)\\NVIDIA Corporation\\PhysX\\Common;C:\\Program Files (x86)\\MySQL\\MySQL Utilities 1.6\\;C:\\Program Files\\Git\\cmd;C:\\Program Files\\Git\\mingw64\\bin;C:\\Program Files\\Git\\usr\\bin;C:\\Program Files\\1E\\NomadBranch\\;C:\\Program Files\\nodejs\\;C:\\Users\\jahmada\\AppData\\Local\\Mu\\bin;C:\\Users\\jahmada\\AppData\\Local\\Programs\\Microsoft VS Code\\bin;C:\\Program Files\\Git\\cmd;C:\\Program Files\\Git\\mingw64\\bin;C:\\Program Files\\Git\\usr\\bin;c:\\sqlite;C:\\Users\\jahmada\\AppData\\Roaming\\npm;C:\\Python27\\;C:\\Python27\\Scripts;C:\\Program Files\\Common Files\\Microsoft Shared\\Microsoft Online Services;C:\\Program Files (x86)\\Common Files\\Microsoft Shared\\Microsoft Online Services;C:\\ProgramData\\Oracle\\Java\\javapath;C:\\WINDOWS\\system32;C:\\WINDOWS;C:\\WINDOWS\\System32\\Wbem;C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\;C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\;C:\\WINDOWS\\System32\\WindowsPowerShell\\v1.0\\;C:\\Program Files (x86)\\NVIDIA Corporation\\PhysX\\Common;C:\\Program Files (x86)\\MySQL\\MySQL Utilities 1.6\\;C:\\Program Files\\Git\\cmd;C:\\Program Files\\Git\\mingw64\\bin;C:\\Program Files\\Git\\usr\\bin;C:\\Program Files\\1E\\NomadBranch\\;C:\\Program Files\\nodejs\\;C:\\Users\\jahmada\\AppData\\Local\\Mu\\bin;C:\\Users\\jahmada\\AppData\\Local\\Programs\\Microsoft VS Code\\bin;C:\\Program Files\\Git\\cmd;C:\\Program Files\\Git\\mingw64\\bin;C:\\Program Files\\Git\\usr\\bin;c:\\sqlite;C:\\Users\\jahmada\\AppData\\Roaming\\npm",
+			"PLATFORMIO_CALLER": "vscode"
+		}
+	}
+}
